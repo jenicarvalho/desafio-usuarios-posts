@@ -1,24 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import axios from 'axios'
+import { Posts } from './types/posts'
+import { Usuarios } from './types/usuarios'
 
 function App() {
+
+  const [usuarios, setUsuarios] = useState<Usuarios[]>([])
+  const [id, setId] = useState<Number>(0)
+  const [posts, setPosts] = useState<Posts[]>([])
+
+  useEffect(() => {
+    axios.get('https://jsonplaceholder.typicode.com/users/')
+        .then(resposta => setUsuarios(resposta.data))
+  }, [])
+
+  useEffect(() => {
+    if(id !== 0) {
+      axios.get(`https://jsonplaceholder.typicode.com/users/${id}/posts`)
+        .then(resposta => setPosts(resposta.data))
+    }
+  }, [id])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h2>Usuários</h2>
+      <ul>
+        {
+          usuarios !== null && 
+          usuarios.map((item: Usuarios) => (
+            <li key={item.id} onClick={() => setId(item.id)}>
+              {item.name} - {item.id}
+            </li>
+          ))
+        }
+      </ul>
+      <h2>Posts</h2>
+      <ul>
+        { 
+          posts.map((item: Posts) => (
+            <li key={item.id}>{item.title} - {item.userId}</li>
+          ))
+        }
+      </ul>
     </div>
   );
 }
